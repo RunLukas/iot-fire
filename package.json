@@ -1,0 +1,27 @@
+{
+  "name": "iot-fire2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "led-control.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RunLukas/iot-fire.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RunLukas/iot-fire/issues"
+  },
+  "homepage": "https://github.com/RunLukas/iot-fire#readme",
+  "dependencies": {
+    "express": "^4.17.2",
+    "onoff": "^6.0.3",
+    "socket.io": "^4.4.0",
+    "socket.io-client": "^4.4.0"
+  }
+}
