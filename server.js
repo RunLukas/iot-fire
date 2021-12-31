@@ -4,6 +4,7 @@ const socketIO = require( 'socket.io' );
 
 // import LED control API
 const { toggle } = require( './led-control' );
+const {state} = require('./led-control.js');
 
 // create an express app
 const app = express();
@@ -31,11 +32,13 @@ const io = socketIO( server );
 // listen for connection
 io.on( 'connection', ( client ) => {
   console.log( 'SOCKET: ', 'A client connected', client.handshake.address, client.handshake.time);
-
+  client.emit("initialStateCheck", state());
+  
   // listen to `led-toggle` event
   client.on( 'led-toggle', ( data ) => {
-    console.log( 'Received led-toggle event.' );
-    toggle( data.r, data.g, data.b ); // toggle LEDs
+    console.log( 'Received led-toggle event from', client.handshake.address, new Date());
+    toggle( data.d1, data.d2, data.d3, data.d4, data.d5, data.da ); // toggle LEDs
+    io.emit("barve", state());
+    console.log(state());
   } );
-
 } );
