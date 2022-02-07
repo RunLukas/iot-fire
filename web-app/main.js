@@ -18,7 +18,7 @@ let buttonDoorAllState = false;
 var isConnectionActive = false;
 
 // connect to the Web Socket server
-var connection = io( 'http://192.168.0.150:9000' );
+var connection = io( 'http://192.168.1.10:9000' );
 
 // when connection is established 
 connection.on( 'connect', () => {

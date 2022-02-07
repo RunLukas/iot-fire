@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>PGD Grosuplje</title>
+    <meta charset="UTF-8">
+    <!-- stylesheets -->
+    <link rel="stylesheet" href="/assets/index.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <style>
+      body{ font: 14px sans-serif; }
+      .wrapper{ width: 360px; padding: 20px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrapper fadeInDown">
+      <div id="formContent">
+        <!-- Tabs Titles -->
+    
+        <!-- Icon -->
+        <div class="fadeIn first">
+          <img src="" id="icon" alt="User Icon" />
+        </div>
+    
+        <!-- Register Form -->
+        <form action="javascript:register()">
+          <input type="text" id="username" class="fadeIn second" name="username" placeholder="Uporabniško ime">
+          <input type="text" id="name" class="fadeIn second" name="name" placeholder="Ime">
+          <input type="text" id="lastName" class="fadeIn second" name="lastName" placeholder="Priimek">
+          <input type="text" id="email" class="fadeIn second" name="email" placeholder="Elektronska pošta">
+          <input type="password" id="password" class="fadeIn third" name="password" placeholder="Geslo">
+          <input type="submit" class="fadeIn fourth" value="Registracija">
+        </form>
+    
+        <!-- Remind Passowrd -->
+        <div id="formFooter">
+          <a class="underlineHover" href="#">Pozabljeno geslo?</a>
+        </div>
+    
+        </div>
+      </div>
+    <!-- scripts -->
+    <script src="/assets/socket.io.js"></script>
+    <script src="/assets/login.js"></script>
+  </body>
+</html>

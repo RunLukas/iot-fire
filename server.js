@@ -1,6 +1,24 @@
 const path = require( 'path' );
 const express = require( 'express' );
+
+const cookieParser = require("cookie-parser");
+const session = require('express-session');
+
 const socketIO = require( 'socket.io' );
+const mysql = require('mysql');
+const CryptoJS = require("crypto-js");
+
+const con = mysql.createConnection({
+  host: "localhost",
+  user: "webuser",
+  password: "gasilci1909",
+  database: "iotFire"
+});
+
+con.connect(function(err) {
+  if (err) throw err;
+  console.log("Database connected!");
+});
 
 // import LED control API
 const { toggle } = require( './led-control' );
@@ -11,7 +29,15 @@ const app = express();
 
 // send `index.html` from the current directory
 // when `http://<ip>:9000/` route is accessed using `GET` method
-app.get( '/', ( request, response ) => {
+app.get( '/login', ( request, response ) => {
+  response.sendFile( path.resolve( __dirname, 'web-app/login.html' ), {
+    headers: {
+      'Content-Type': 'text/html',
+    }
+  } );
+} );
+
+app.get( '/index', ( request, response ) => {
   response.sendFile( path.resolve( __dirname, 'web-app/index.html' ), {
     headers: {
       'Content-Type': 'text/html',
@@ -29,9 +55,45 @@ const server = app.listen( 9000, () => console.log( 'Express server started!' ) 
 // create a WebSocket server
 const io = socketIO( server );
 
+let key = "ASECRET";
+
 // listen for connection
 io.on( 'connection', ( client ) => {
   console.log( 'SOCKET: ', 'A client connected', client.handshake.address, client.handshake.time);
+  
+  client.on('register', (username, name, lastName, email, password) => {
+    let cipher = CryptoJS.AES.encrypt(password, key);
+    cipher = cipher.toString();
+    /*
+    let decipher = CryptoJS.AES.decrypt(cipher, key);
+    decipher = decipher.toString(CryptoJS.enc.Utf8);
+    console.log(decipher);
+    CryptoJS.AES.decrypt(cipher, key).toString;
+    */
+
+    con.query("INSERT INTO user (username, ime, priimek, email, geslo) VALUES (?, ?, ?, ?, ?);", [username, name, lastName, email, cipher], function (err, result, fields) {
+      if (err) throw err;
+      console.log(result);
+    });
+  });
+  
+  //Login
+  client.on('login', (username, password) => {
+    let cipher = CryptoJS.AES.encrypt(password, key);
+    cipher = cipher.toString();
+
+    con.query("SELECT * FROM user WHERE username= ?;", [username], function (err, result, fields) {
+      if (err) throw err;
+      if  (result == "") {client.emit("wrongLogin", "Napačno uporabniško ime."); return;}
+      let decipher = CryptoJS.AES.decrypt(result[0].geslo, key);
+      decipher = decipher.toString(CryptoJS.enc.Utf8);
+      if(decipher == password) {
+        client.emit("onLogin", false);
+      }
+      else client.emit("wrongLogin", "Napačno geslo.");
+    });
+  });
+
   client.emit("initialStateCheck", state());
   
   // listen to `led-toggle` event
