@@ -33,6 +33,10 @@ connection.on("onLogin", () => {
   window.location.href = "index";
 });
 
+connection.on("setCookie", (cookie) => {
+  
+});
+
 function register(){
   const username = fetchValue( "username" );
   const name = fetchValue( "name" );
