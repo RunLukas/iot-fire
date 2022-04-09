@@ -1,6 +1,8 @@
 // import `onoff` package
 const { Gpio } = require( 'onoff' );
 
+
+
 // configure LED pins
 const pin_door1 = new Gpio( 26, 'out' );
 const pin_door2 = new Gpio( 19, 'out' );
@@ -30,3 +32,4 @@ exports.state = () => {
   }
   return data;
 }
+

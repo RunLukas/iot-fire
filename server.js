@@ -1,7 +1,6 @@
 const path = require( 'path' );
 const express = require( 'express' );
 
-const cookieParser = require("cookie-parser");
 const session = require('express-session');
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
@@ -26,20 +25,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
 app.use(passport.session());
 
-/*
-passport.use(
-  new LocalStrategy((username, password, done) => {
-    if (username === "john" && password === "doe") {
-      console.log("authentication OK");
-      return done(null, DUMMY_USER);
-    } else {
-      console.log("wrong credentials");
-      return done(null, false);
-    }
-  })
-);*/
-
-
 
 const con = mysql.createConnection({
   host: "localhost",
@@ -54,20 +39,58 @@ con.connect(function(err) {
 });
 
 // import LED control API
-const { toggle } = require( './led-control' );
-const {state} = require('./led-control.js');
+const { toggle } = require( './arduino-control' );
+const {state} = require('./arduino-control.js');
+
+/* ----------------------------- ARDUINO -----------------------------------*/
+
+const { SerialPort, ReadlineParser } = require('serialport');
+const port = new SerialPort({path: '/dev/ttyACM0', baudRate: 9600, });
+const parser = new ReadlineParser()
+port.pipe(parser)
+
+// Read the port data
+port.on("open", () => {
+  console.log('serial port open');
+});
+
+parser.on('data', function (data) {
+  console.log('Data:', data)
+});
+
+function odpri(){
+  port.write('O', (err) => {
+    if (err) {
+      return console.log('Error on write: ', err.message);
+    }
+  console.log('odpri - sent');
+  });
+}
+
+function zapri(){
+  port.write('Z', (err) => {
+    if (err) {
+      return console.log('Error on write: ', err.message);
+    }
+  console.log('zapri - sent');
+  });
+}
+
+function light(){
+  port.write('L', (err) => {
+    if (err) {
+      return console.log('Error on write: ', err.message);
+    }
+  console.log('luc - sent');
+  });
+}
+
+/* --------------------------------------------------------------------------*/
 
 // send asset files
 app.use( '/assets/', express.static( path.resolve( __dirname, 'web-app' ) ) );
 app.use( '/assets/', express.static( path.resolve( __dirname, 'node_modules/socket.io-client/dist' ) ) );
 
-// server listens on `9000` port
-/*
-const server = require('http').createServer(app);
-server.listen(9000, () => {
-  console.log("Server started")
-});
-*/
 
 /* ------------------------------------- */
 
@@ -88,6 +111,16 @@ app.post(
     failureRedirect: "/",
   })
 );
+
+app.get("/calendar", (req, res) => {
+  const isAuthenticated = !!req.user;
+  if (isAuthenticated) {
+    console.log(`user is authenticated, session is ${req.session.id}`);
+  } else {
+    console.log("unknown user");
+  }
+  res.sendFile(isAuthenticated ? "web-app/calendar.html" : "web-app/login.html", { root: __dirname });
+});
 
 app.post("/logout", (req, res) => {
   console.log(`logout ${req.session.id}`);
@@ -121,13 +154,6 @@ passport.use(new LocalStrategy(function verify(username, password, cb) {
       if (match != true) {return cb(null, false, { message: 'Incorrect username or password.' }); }
       return cb(null, result);
     });
-    /*
-    crypto.pbkdf2(password, result.salt, 310000, 32, 'sha256', function(err, hashedPassword) {
-      if (err) { return cb(err); }
-      if (!crypto.timingSafeEqual(result[0].geslo, hashedPassword)) {
-        return cb(null, false, { message: 'Incorrect username or password.' });
-      }
-      return cb(null, result);*/
     
   });
 }));
@@ -152,28 +178,8 @@ io.use((socket, next) => {
   }
 });
 
-/*
-io.use(function (socket, next) {
-  sessionMiddleware(socket.request, socket.request.res, next);
-});
-app.use(sessionMiddleware);
-app.use(cookieParser());
-
-app.get("/*", function(req, res, next) {
-
-  if(typeof req.cookies['connect.sid'] !== 'undefined') {
-      console.log(req.cookies['connect.sid']);
-  }
-
-  next(); // Call the next middleware
-});*/
-
-// listen for connection
-
 
 io.on( 'connection', ( client ) => {
-  /*console.log( 'SOCKET: ', 'A client connected', client.handshake.address, client.handshake.time);
-  */
   console.log(`new connection ${client.id}`);
   client.on('login', (cb) => {
     cb(client.request.user ? client.request.user.username : '');
@@ -198,63 +204,14 @@ io.on( 'connection', ( client ) => {
     });
   });
 
-  /*
-  let req = client.request;
-
-  console.log(req.session.userID);
-  if(req.session.userID != null){
-    con.query("SELECT * FROM user WHERE id=?", [req.session.userID], function(err, rows, fields){
-      socket.emit("onLogin", false); //Lahko dodam ime
-    });
-  }
-  
-  
-  client.on('register', (username, name, lastName, email, password) => {
-    let cipher = CryptoJS.AES.encrypt(password, key);
-    cipher = cipher.toString();
-    /*
-    let decipher = CryptoJS.AES.decrypt(cipher, key);
-    decipher = decipher.toString(CryptoJS.enc.Utf8);
-    console.log(decipher);
-    CryptoJS.AES.decrypt(cipher, key).toString;
-    */
-/*
-    con.query("INSERT INTO user (username, ime, priimek, email, geslo) VALUES (?, ?, ?, ?, ?);", [username, name, lastName, email, cipher], function (err, result, fields) {
-      if (err) throw err;
-      console.log(result);
-    });
-  });
-  
-  //Login
-  client.on('login', (username, password) => {
-    let cipher = CryptoJS.AES.encrypt(password, key);
-    cipher = cipher.toString();
-
-    con.query("SELECT * FROM user WHERE username= ?;", [username], function (err, result, fields) {
-      if (err) throw err;
-      if  (result == "") {client.emit("wrongLogin", "Napačno uporabniško ime."); return;}
-      let decipher = CryptoJS.AES.decrypt(result[0].geslo, key);
-      decipher = decipher.toString(CryptoJS.enc.Utf8);
-      if(decipher == password) {
-        req.session.userID = result[0].id;
-        req.session.save();
-        console.log(req.session.userID);
-        /*
-        req.header("Access-Control-Allow-Credentials", 'true');
-        client.emit("onLogin", false);
-      }
-      else client.emit("wrongLogin", "Napačno geslo.");
-    });
-  });*/
-
   client.emit("initialStateCheck", state());
   
-  // listen to `led-toggle` event
-  client.on( 'led-toggle', ( data ) => {
-    console.log( 'Received led-toggle event from', client.handshake.address, new Date());
-    toggle( data.d1, data.d2, data.d3, data.d4, data.d5, data.da ); // toggle LEDs
-    io.emit("barve", state());
-    console.log(state());
+  // listen to `arduino-toggle` event
+  client.on( 'arduino-toggle', ( data ) => {
+    console.log( 'Received arduino-toggle event from', client.handshake.address, new Date());
+    if(data.d1 == 1 && data.d2 == 0){odpri();} // toggle LEDs
+    else if (data.d2 == 1 && data.d1 == 0) {zapri();}
+    else if(data.d3 == 1) {light();}
   } );
 } );
 

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PGD Grosuplje</title>
+    <!-- stylesheets -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="/assets/style.css"/>
+  </head>
+  <body>
+
+    <div class="button-float-div">
+      <button class="float-end float-menu" data-bs-toggle="offcanvas" data-bs-target="#offcanvas" role="button" aria-label="Toggle menu">
+        <i class="bi bi-list"></i>
+      </button>
+  </div>
+
+    <form action="/logout" method="post" name="logout" id="logout"></form>
+    <form action="/calendar" method="post" name="calendar" id="calendar"></form>
+    <nav class="offcanvas offcanvas-start" tabindex="-1" id="offcanvas" data-bs-keyboard="false" data-bs-backdrop="true" data-bs-scroll="true">
+      <div class="offcanvas-header border-bottom">
+        <a href="/" class="d-flex align-items-center text-decoration-none offcanvas-title sidebar-title d-sm-block">
+          <h3>
+            <i></i>
+            PGD Grosuplje
+          </h3>
+        </a>
+      </div>
+      <div class="offcanvas-body px-0">
+        <ul class="list-unstyled ps-0">
+          <li class="mb-1">
+            <button
+              class="btn btn-toggle align-items-center rounded"
+              data-bs-toggle="collapse"
+              data-bs-target="#home-collapse"
+              aria-expanded="true">
+              Nadzor doma
+            </button>
+            <div class="collapse show" id="home-collapse">
+              <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                <li><a href="/" class="rounded">Vrata</a></li>
+                <li><a href="#" class="rounded">Luči</a></li>
+              </ul>
+            </div>
+          </li>
+          <li class="mb-1">
+            <button
+              class="btn btn-toggle align-items-center rounded collapsed"
+              data-bs-toggle="collapse"
+              data-bs-target="#dashboard-collapse"
+              aria-expanded="false"
+            >
+              Vozila in oprema
+            </button>
+            <div class="collapse" id="dashboard-collapse">
+              <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                <li><a href="#" class="rounded">Overview</a></li>
+                <li><a href="#" class="rounded">Weekly</a></li>
+                <li><a href="#" class="rounded">Monthly</a></li>
+                <li><a href="#" class="rounded">Annually</a></li>
+              </ul>
+            </div>
+          </li>
+          <li class="mb-1">
+            <button
+              class="btn btn-toggle align-items-center rounded collapsed"
+              data-bs-toggle="collapse"
+              data-bs-target="#orders-collapse"
+              aria-expanded="false"
+            >
+              Kontrole
+            </button>
+            <div class="collapse" id="orders-collapse">
+              <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                <li><a href="#" class="rounded" id="calendarButton">Dogodki</a></li>
+                <li><a href="#" class="rounded">Processed</a></li>
+                <li><a href="#" class="rounded">Shipped</a></li>
+                <li><a href="#" class="rounded">Returned</a></li>
+              </ul>
+            </div>
+          </li>
+          <li class="border-top my-3"></li>
+          <li class="mb-1">
+            <button
+              class="btn btn-toggle align-items-center rounded collapsed"
+              data-bs-toggle="collapse"
+              data-bs-target="#account-collapse"
+              aria-expanded="false"
+            >
+              Račun
+            </button>
+            <div class="collapse" id="account-collapse">
+              <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                <li><a href="#" class="rounded">Profil</a></li>
+                <li><a href="#" class="rounded">Nastavitve</a></li>
+                <li><a href="#" class="rounded" id="logoutButton">Izpis</a></li>
+              </ul>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- scripts -->
+    <script src="/assets/socket.io.js"></script>
+    <script src="/assets/main.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+    <script src="/assets/sidebar.js"></script>
+  </body>
+</html>
