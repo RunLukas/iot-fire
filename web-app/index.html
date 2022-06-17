@@ -18,13 +18,12 @@
   </div>
 
     <form action="/logout" method="post" name="logout" id="logout"></form>
-    <form action="/calendar" method="get" name="calendar" id="calendar"></form>
     <nav class="offcanvas offcanvas-start" tabindex="-1" id="offcanvas" data-bs-keyboard="false" data-bs-backdrop="true" data-bs-scroll="true">
       <div class="offcanvas-header border-bottom">
         <a href="/" class="d-flex align-items-center text-decoration-none offcanvas-title sidebar-title d-sm-block">
           <h3>
             <i></i>
-            PGD Grosuplje
+            <img src="../assets/pictures/logoPGD.jpg" id="icon" alt="User Icon" width="200px"/>
           </h3>
         </a>
       </div>
@@ -41,7 +40,6 @@
             <div class="collapse show" id="home-collapse">
               <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
                 <li><a href="/" class="rounded">Vrata</a></li>
-                <li><a href="#" class="rounded">Luči</a></li>
               </ul>
             </div>
           </li>
@@ -56,10 +54,7 @@
             </button>
             <div class="collapse" id="dashboard-collapse">
               <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                <li><a href="#" class="rounded">Overview</a></li>
-                <li><a href="#" class="rounded">Weekly</a></li>
-                <li><a href="#" class="rounded">Monthly</a></li>
-                <li><a href="#" class="rounded">Annually</a></li>
+                <li><a href="/izvozi" class="rounded">Izvozi</a></li>
               </ul>
             </div>
           </li>
@@ -70,14 +65,11 @@
               data-bs-target="#orders-collapse"
               aria-expanded="false"
             >
-              Kontrole
+              Dodatno
             </button>
             <div class="collapse" id="orders-collapse">
               <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                <li><a href="/calendar" class="rounded" id="calendarButton">Dogodki</a></li>
-                <li><a href="#" class="rounded">Processed</a></li>
-                <li><a href="#" class="rounded">Shipped</a></li>
-                <li><a href="#" class="rounded">Returned</a></li>
+                <li><a href="/calendar" class="rounded" id="calendarButton">Koledar dogodkov</a></li>
               </ul>
             </div>
           </li>
@@ -93,7 +85,7 @@
             </button>
             <div class="collapse" id="account-collapse">
               <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                <li><a href="#" class="rounded">Profil</a></li>
+                <li><a href="/profil" class="rounded">Profil</a></li>
                 <li><a href="#" class="rounded">Nastavitve</a></li>
                 <li><a href="#" class="rounded" id="logoutButton">Izpis</a></li>
               </ul>
@@ -105,15 +97,10 @@
     
 
     <div style="margin-left: 10%;">
-    <p class="title">VRATA</p>
+    <p class="title">VRATA IN LUČ</p>
     <div class="buttons-container">
-      <div class="buttons-container__button buttons-container__button--white" id="door1">ODPRI</div>
-      <div class="buttons-container__button buttons-container__button--white" id="door2">ZAPRI</div>
+      <div class="buttons-container__button buttons-container__button--white" id="door1">ODPRI VRATA</div>
       <div class="buttons-container__button buttons-container__button--white" id="light">LUČ</div>
-    </div>
-    <br>
-    <div class="buttons-container">
-      <div class="buttons-container__button buttons-container__button--white" id="doorAll">VSA VRATA</div>
     </div>
   </div>
 

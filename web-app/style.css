@@ -121,8 +121,8 @@ html, body {
 
   .buttons-container__button {
     display: flex;
-    width: 100px;
-    height: 80px;
+    width: 120px;
+    height: 100px;
     border-radius: 3px;
     font-size: 18px;
     font-weight: 700;
@@ -134,9 +134,7 @@ html, body {
     flex: 0 0 auto;
     justify-content: center;
     align-items: center;
-
-    width: 100px;
-    height: 80px;
+    text-align: center;
   }
   
   .buttons-container__button:hover{
@@ -168,6 +166,7 @@ a:focus {
 	cursor: pointer;
 	outline: inherit;
   float: left !important;
+  margin-right: 100%;
 }
 
 .button-float-div {

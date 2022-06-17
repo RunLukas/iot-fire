@@ -40,9 +40,13 @@ con.connect(function(err) {
 
 // import LED control API
 const { toggle } = require( './arduino-control' );
-const {state} = require('./arduino-control.js');
+/*
+const {state} = require('./arduino-control.js');*/
 
 /* ----------------------------- ARDUINO -----------------------------------*/
+
+let stanjeVrat = 0;
+let stanjeLuci = 0;
 
 const { SerialPort, ReadlineParser } = require('serialport');
 const port = new SerialPort({path: '/dev/ttyACM0', baudRate: 9600, });
@@ -55,6 +59,8 @@ port.on("open", () => {
 });
 
 parser.on('data', function (data) {
+  if(data == 0) stanjeVrat = 0;
+  else if (data == 1) stanjeVrat = 1;
   console.log('Data:', data)
 });
 
@@ -85,6 +91,14 @@ function light(){
   });
 }
 
+function state(){
+  data = {
+    d1: stanjeVrat,
+    l1: stanjeLuci,
+  }
+  return data;
+}
+
 /* --------------------------------------------------------------------------*/
 
 // send asset files
@@ -98,6 +112,7 @@ app.get("/", (req, res) => {
   const isAuthenticated = !!req.user;
   if (isAuthenticated) {
     console.log(`user is authenticated, session is ${req.session.id}`);
+    console.log(`ip: ${req.ip}`)
   } else {
     console.log("unknown user");
   }
@@ -112,6 +127,16 @@ app.post(
   })
 );
 
+app.get("/assets/*", (req, res) => {
+  res.sendFile( req.path, { root: __dirname });
+});
+
+/*
+app.get("/register", (req, res) => {
+  res.sendFile( "web-app/register.html", { root: __dirname });
+});
+*/
+
 app.get("/calendar", (req, res) => {
   const isAuthenticated = !!req.user;
   if (isAuthenticated) {
@@ -120,6 +145,26 @@ app.get("/calendar", (req, res) => {
     console.log("unknown user");
   }
   res.sendFile(isAuthenticated ? "web-app/calendar.html" : "web-app/login.html", { root: __dirname });
+});
+
+app.get("/izvozi", (req, res) => {
+  const isAuthenticated = !!req.user;
+  if (isAuthenticated) {
+    console.log(`user is authenticated, session is ${req.session.id}`);
+  } else {
+    console.log("unknown user");
+  }
+  res.sendFile(isAuthenticated ? "web-app/izvozi.html" : "web-app/login.html", { root: __dirname });
+});
+
+app.get("/profil", (req, res) => {
+  const isAuthenticated = !!req.user;
+  if (isAuthenticated) {
+    console.log(`user is authenticated, session is ${req.session.id}`);
+  } else {
+    console.log("unknown user");
+  }
+  res.sendFile(isAuthenticated ? "web-app/profil.html" : "web-app/login.html", { root: __dirname });
 });
 
 app.post("/logout", (req, res) => {
@@ -178,6 +223,21 @@ io.use((socket, next) => {
   }
 });
 
+async function getIzvozi(){
+  let datai
+  const query = new Promise((resolve, reject) => { con.query('SELECT i.id, v.naziv, i.namen, i.datum, i.izvoz, i.prihod, CONCAT(u.ime, " ", u.priimek) AS imeinpriimek FROM izvoz i INNER JOIN vozilo v ON (i.voziloID = v.id) INNER JOIN user u ON (i.voznikID = u.id) ORDER BY i.id DESC', function(err, data) {
+    if (err) {
+        console.log("err");
+
+    } else {
+        datai = data;
+        resolve();
+    }
+  });
+});
+  await query;
+  return JSON.stringify(datai);
+}
 
 io.on( 'connection', ( client ) => {
   console.log(`new connection ${client.id}`);
@@ -191,27 +251,41 @@ io.on( 'connection', ( client ) => {
   session.save();
   
   client.on('register', (username, name, lastName, email, password) => {
-    let cipher = CryptoJS.AES.encrypt(password, key);
-    cipher = cipher.toString();
-    let decipher = CryptoJS.AES.decrypt(cipher, key);
-    decipher = decipher.toString(CryptoJS.enc.Utf8);
-    console.log(decipher);
-    CryptoJS.AES.decrypt(cipher, key).toString;
-
-    con.query("INSERT INTO user (username, ime, priimek, email, geslo) VALUES (?, ?, ?, ?, ?);", [username, name, lastName, email, cipher], function (err, result, fields) {
+    con.query("SELECT * FROM user WHERE username= ?;", [username], function (err, result, fields) {
       if (err) throw err;
-      console.log(result);
+      if  (result != "") {client.emit("wrongLogin", "To uporabniško ime je že v uporabi!"); return null;}
+    
+
+    cryptPassword(password, (err, hash) => {
+      con.query("INSERT INTO user (username, ime, priimek, email, geslo) VALUES (?, ?, ?, ?, ?);", [username, name, lastName, email, hash], function (err, result, fields) {
+        if (err) throw err;
+        console.log(result);
+      });
+    });
     });
   });
 
-  client.emit("initialStateCheck", state());
+  client.on('table', async () =>{
+    let result = await getIzvozi();
+    client.emit('returnTable', result);
+  });
+
+  client.on('getUserData', async () =>{
+    let data = session.passport.user;
+    client.emit('userData', data);
+  });
+
+  client.emit("buttonStates", state());
   
   // listen to `arduino-toggle` event
   client.on( 'arduino-toggle', ( data ) => {
     console.log( 'Received arduino-toggle event from', client.handshake.address, new Date());
-    if(data.d1 == 1 && data.d2 == 0){odpri();} // toggle LEDs
-    else if (data.d2 == 1 && data.d1 == 0) {zapri();}
-    else if(data.d3 == 1) {light();}
+    if(data.d1 == 1 && data.d1 != stanjeVrat){odpri();} // toggle LEDs
+    else if(data.d1 == 0 && data.d1 != stanjeVrat){zapri();} 
+    else if(data.l1 != stanjeLuci) {light();}
+    stanjeVrat = data.d1;
+    stanjeLuci = data.l1;
+    io.emit("buttonStates", state());
   } );
 } );
 
